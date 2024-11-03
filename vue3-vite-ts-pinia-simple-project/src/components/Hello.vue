@@ -1,44 +1,55 @@
-<script lang="ts" setup>
-defineProps<{ msg: string }>()
-</script>
-
 <template>
-  <h3>{{ msg }}</h3>
-
-  <p>
-    Recommended IDE setup:
-    <a href="https://code.visualstudio.com/" target="_blank">VSCode</a>
-    +
-    <a href="https://github.com/johnsoncodehk/volar" target="_blank">Volar</a>
-  </p>
-
-  <p>
-    See
-    <code>README.md</code> for more information.
-  </p>
-
-  <p>
-    <a href="https://vitejs.dev/guide/features.html" target="_blank">Vite Docs</a>
-    |
-    <a href="https://v3.vuejs.org/" target="_blank">Vue 3 Docs</a>
-  </p>
+  <div>
+    <h1>Hello Component</h1>
+    <p>This is a simple component!</p>
+    <button @click="doSomething()">Click Me!</button>
+    <button @click="toggleMessage">{{ showMessage ? 'Hide' : 'Show' }} Message</button>
+    <p v-if="showMessage">{{ message }}</p>
+    <input v-model="userInput" placeholder="Type something..." />
+    <button @click="submitInput">Submit</button>
+  </div>
 </template>
 
+<script>
+export default {
+  data() {
+    return {
+      showMessage: false,
+      message: "This is a toggled message!",
+      userInput: '',
+    };
+  },
+  methods: {
+    doSomething() {
+      console.log("Button clicked!");
+    },
+    toggleMessage() {
+      this.showMessage = !this.showMessage;
+    },
+    submitInput() {
+      if (this.userInput) {
+        console.log("User input:", this.userInput);
+        this.userInput = '';
+      } else {
+        console.error("Input is empty!");
+      }
+    },
+  },
+}
+</script>
+
 <style scoped>
-a {
-  color: #42b983;
+div {
+  border: 1px solid red;
+  padding: 10px;
+  margin: 10px;
 }
-
-label {
-  margin: 0 0.5em;
-  font-weight: bold;
-}
-
-code {
-  background-color: #eee;
-  padding: 2px 4px;
-  border-radius: 4px;
-  color: #304455;
+button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin-right: 10px;
+  cursor: pointer;
 }
 </style>
-
