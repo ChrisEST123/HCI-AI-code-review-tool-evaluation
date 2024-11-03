@@ -14,3 +14,23 @@ export const useCounterStore = defineStore("main", {
     },
   },
 });
+
+export const useAuthStore = defineStore("auth", {
+  state: () => ({
+    user: null,
+    loggedIn: false,
+  }),
+  actions: {
+    login() {
+      this.user = { name: "User" };
+      this.loggedIn = true;
+    },
+    logout() {
+      this.user = null;
+      this.loggedIn = false;
+    },
+    getStatus() {
+      return this.loginStatus;
+    },
+  },
+});

@@ -4,6 +4,7 @@
     <router-link to="/about">About</router-link>
   </div>
   <img alt="Vue logo" src="@/assets/images/logo.png" width="120" />
+  <button @click="useAuthStore().login()">Login</button>
   <router-view />
 </template>
 
