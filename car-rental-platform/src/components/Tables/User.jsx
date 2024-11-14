@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
-import CRUDTable,
-{
+import CRUDTable, {
   Fields,
   Field,
   CreateForm,
@@ -13,67 +12,100 @@ import CRUDTable,
 // Component's Base CSS
 import "../../styles/user.css";
 
-const DescriptionRenderer = ({ field }) => <textarea {...field} />;
+const PasswordResetForm = () => {
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
 
-let tasks = [];
-let result = [];
+  const [passwordResetStatus, setPasswordResetStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const service = {
-    fetchItems: async (payload) => {
-        await axios.get(`${process.env.REACT_APP_API_URL}/customer/`+sessionStorage.getItem('id'),{
-          headers: {
-            'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
-      })
-        .then((res)=>
-        {
-            tasks = res.data;    
-            console.log(tasks)      
-        });   
-        result = [];
-        result.push(tasks)
-        let result1 = Array.from(result);
-      console.log(result1)
-      return Promise.resolve(result1);
-    },
-    update: async (data) => {
-      const task = result.find(t => t._id === data._id);
-      console.log(task)
-      task.name = data.name;
-      task.mobileno = data.mobileno;
-      task.email = data.email;
-      task.address = data.address;
-    await axios.put(`${process.env.REACT_APP_API_URL}/customer/`+task._id,task,{
-      headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
-        'Content-Type': 'application/json',
-      },
-  })
-        .then((res)=>
-        {    
-            console.log(res)      
-        });
-        return Promise.resolve(tasks);
-    },
-    delete: async(data) => {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/customer/`+data._id,{
-          headers: {
-            'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
-      })
-        .then((res)=>
-        {    
-            console.log(res)      
-        });
-      service.fetchItems();   
-      return Promise.resolve(tasks);
-    },
+  useEffect(() => {
+    setPasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    });
+  }, []);
+
+  const handleChange = (e) => {
+    setPasswordData({
+      ...passwordData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-const styles = {
-  container: { margin: 'auto', width: 'fit-content' },
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      console.error("Passwords don't match!");
+      setPasswordResetStatus('Password mismatch');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      console.error('Password too short!');
+      setPasswordResetStatus('Password too short');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await axios.put(`${process.env.REACT_APP_API_URL}/customer/reset-password`, passwordData, {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('Password updated successfully!');
+      setPasswordResetStatus('Password updated successfully!');
+    } catch (err) {
+      console.error('Error updating password:', err);
+      setPasswordResetStatus('Failed to update password.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="currentPassword">Current Password:</label>
+        <input
+          type="password"
+          id="currentPassword"
+          name="currentPassword"
+          value={passwordData.currentPassword}
+          onChange={handleChange}
+        />
+      </div>
+      <div>
+        <label htmlFor="newPassword">New Password:</label>
+        <input
+          type="password"
+          id="newPassword"
+          name="newPassword"
+          value={passwordData.newPassword}
+          onChange={handleChange}
+        />
+      </div>
+      <div>
+        <label htmlFor="confirmPassword">Confirm New Password:</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          name="confirmPassword"
+          value={passwordData.confirmPassword}
+          onChange={handleChange}
+        />
+      </div>
+      <button type="submit" disabled={loading}>Reset Password</button>
+      {passwordResetStatus && <p>{passwordResetStatus}</p>}
+    </form>
+  );
 };
 
 const UserTable = () => (
@@ -99,7 +131,7 @@ const UserTable = () => (
           label="Contact No"
           placeholder="Your Contact No."
         />
-      <Field
+        <Field
           name="email"
           label="Email"
           placeholder="Your Email"
@@ -157,6 +189,12 @@ const UserTable = () => (
         }}
       />
     </CRUDTable>
+
+    <div>
+      <h3>Reset Your Password</h3>
+      <PasswordResetForm />
+    </div>
   </div>
 );
+
 export default UserTable;
